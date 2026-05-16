@@ -36,8 +36,17 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ── Static ─────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, '../../frontend')));
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+const frontendPath = path.resolve(__dirname, '../../frontend');
+const uploadsPath = path.resolve(__dirname, '../../uploads');
+
+// Ensure uploads folder exists
+const fs = require('fs');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+}
+
+app.use(express.static(frontendPath));
+app.use('/uploads', express.static(uploadsPath));
 
 // ── Health ─────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ success: true, status: 'ok', uptime: process.uptime() }));
@@ -55,10 +64,10 @@ app.use('/api/search',        searchRoutes);
 
 // ── SPA Fallback ───────────────────────────────────────────
 app.use((req, res) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ success: false, message: 'Endpoint không tồn tại.' });
+  if (req.path.startsWith('/api') || req.path.includes('.')) {
+    return res.status(404).json({ success: false, message: 'Tài nguyên không tồn tại.' });
   }
-  res.sendFile(path.join(__dirname, '../../frontend/index.html'));
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 // ── Error Handler ──────────────────────────────────────────
