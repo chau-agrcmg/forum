@@ -15,10 +15,12 @@ const LOCK_DURATION_MS = 15 * 60 * 1000; // Khóa 15 phút
 const loginAttempts = new Map();
 
 // ── Helpers ────────────────────────────────────────────────
+const JWT_SECRET = process.env.JWT_SECRET || 'foruma_default_secret_key_change_in_production';
+
 function generateTokens(userId) {
   const accessToken = jwt.sign(
     { userId },
-    process.env.JWT_SECRET,
+    JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
   );
   return { accessToken };
@@ -131,7 +133,7 @@ async function login(req, res) {
     const expiresIn = rememberMe ? '30d' : (process.env.JWT_EXPIRES_IN || '8h');
     const accessToken = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn }
     );
 

@@ -4,6 +4,8 @@
 const jwt = require('jsonwebtoken');
 const { db } = require('../db');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'foruma_default_secret_key_change_in_production';
+
 /**
  * Middleware xác thực JWT Token từ Header Authorization
  * Dùng cho tất cả route cần bảo vệ (protected routes)
@@ -22,7 +24,7 @@ function authenticateToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
 
     // Kiểm tra user vẫn tồn tại và còn active trong DB
     const user = db.findUserById(decoded.userId);
